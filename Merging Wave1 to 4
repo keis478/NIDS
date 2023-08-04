@@ -1,0 +1,30 @@
+# 必要なパッケージを読み込む
+library(haven)
+library(dplyr)
+library(tidyr)
+
+# データを読み込む
+w1 <- read_dta("Adult_W1_Anon.dta")
+w2 <- read_dta("Adult_W2_Anon.dta")
+w3 <- read_dta("Adult_W3_Anon.dta")
+w4 <- read_dta("Adult_W4_Anon.dta")
+
+# 各データセットから接頭辞を削除し、wave変数を追加する
+w1 <- w1 %>% rename_with(~ substr(., 4, nchar(.)), starts_with("w1")) %>% mutate(wave = 1)
+w2 <- w2 %>% rename_with(~ substr(., 4, nchar(.)), starts_with("w2")) %>% mutate(wave = 2)
+w3 <- w3 %>% rename_with(~ substr(., 4, nchar(.)), starts_with("w3")) %>% mutate(wave = 3)
+w4 <- w4 %>% rename_with(~ substr(., 4, nchar(.)), starts_with("w4")) %>% mutate(wave = 4)
+
+# 共通の列名を見つける
+common_cols <- intersect(colnames(w1), colnames(w2))
+common_cols <- intersect(common_cols, colnames(w3))
+common_cols <- intersect(common_cols, colnames(w4))
+
+# 共通の列のみを保持する
+w1 <- w1[, common_cols]
+w2 <- w2[, common_cols]
+w3 <- w3[, common_cols]
+w4 <- w4[, common_cols]
+
+# 全てのデータセットを結合する
+merged_data <- bind_rows(w1, w2, w3, w4)
