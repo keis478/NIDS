@@ -28,3 +28,34 @@ w4 <- w4[, common_cols]
 
 # 全てのデータセットを結合する
 merged_data <- bind_rows(w1, w2, w3, w4)
+
+# 必要なパッケージを読み込む
+library(tidyverse)
+
+# 収入の対数を計算する
+complete_data <- complete_data %>%
+  mutate(log_income = log(a_em1inc))
+
+# 各waveの対数収入の平均値を計算する
+log_income_avg <- complete_data %>%
+  group_by(wave) %>%
+  summarise(avg_log_income = mean(log_income, na.rm = TRUE))
+
+# 平均対数収入の変化をグラフに表す
+ggplot(log_income_avg, aes(x = wave, y = avg_log_income)) +
+  geom_line() +
+  geom_point() +
+  labs(x = "Wave", y = "Average Log Income", title = "Change in Average Log Income from Wave 1 to 4 (Complete Cases)")
+
+# 必要なパッケージを読み込む
+library(tidyverse)
+
+# 各waveでの職業タイプ別の対数収入の分布を箱ひげ図で表示する
+complete_data %>%
+  pivot_longer(cols = starts_with("a_em1occ_isco_c"), names_to = "wave", values_to = "occupation_type") %>%
+  mutate(wave = str_extract(wave, "\\d+")) %>%
+  ggplot(aes(x = factor(wave), y = log_income, fill = factor(occupation_type))) +
+  geom_boxplot() +
+  labs(x = "Wave", y = "Log Income", fill = "Occupation Type",
+       title = "Log Income Distribution by Occupation Type from Wave 1 to 4 (Complete Cases)") +
+  theme(legend.position = "bottom")
