@@ -75,3 +75,37 @@ filtered_data <- filtered_data %>%
         ur = ifelse(wave >= 5 & dc2011 != dc2011_wave4 & geo2011 == 1 & geo2011_wave4 == 2, 1, ur)
     ) %>%
     select(-dc2011_wave4, -geo2011_wave4)  # wave4の一時的な列を削除
+
+
+library(dplyr)
+
+# 新しい列 t4, t3, t2, t1 を追加し、初期値を 0 に設定
+filtered_data <- filtered_data %>%
+  mutate(t4 = 0, t3 = 0, t2 = 0, t1 = 0)
+
+# 各 pid ごとにデータを処理
+pids <- unique(filtered_data$pid)
+for(pid in pids) {
+  pid_data <- filtered_data[filtered_data$pid == pid, ]
+  for(wave in 2:5) {
+    wave_data <- pid_data[pid_data$wave == wave, ]
+    if(any(wave_data$rr == 1, wave_data$uu == 1, wave_data$ru == 1, wave_data$ur == 1)) {
+      if(wave == 2) {
+        filtered_data[filtered_data$pid == pid & filtered_data$wave == 5, "t4"] <- 1
+        filtered_data[filtered_data$pid == pid & filtered_data$wave == 4, "t3"] <- 1
+        filtered_data[filtered_data$pid == pid & filtered_data$wave == 3, "t2"] <- 1
+filtered_data[filtered_data$pid == pid & filtered_data$wave == 2, "t1"] <- 1
+} else if(wave == 3) {
+filtered_data[filtered_data$pid == pid & filtered_data$wave == 5, "t3"] <- 1
+filtered_data[filtered_data$pid == pid & filtered_data$wave == 4, "t2"] <- 1
+filtered_data[filtered_data$pid == pid & filtered_data$wave == 3, "t1"] <- 1
+} else if(wave == 4) {
+filtered_data[filtered_data$pid == pid & filtered_data$wave == 5, "t2"] <- 1
+filtered_data[filtered_data$pid == pid & filtered_data$wave == 4, "t1"] <- 1
+} else if(wave == 5) {
+filtered_data[filtered_data$pid == pid & filtered_data$wave == 5, "t1"] <- 1
+}
+break # 条件に一致したら、そのpidの残りの処理をスキップ
+}
+}
+}
