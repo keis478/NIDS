@@ -77,3 +77,43 @@ data_long <- data_long %>%
 # 最終的な列の選択
 data_long_final <- data_long %>%
   select(pid, wave, weight, log_total_income, dc2011, geo2011, best_edu, best_gen, best_race, best_age_yrs, empl_stat, dummy, EverMigrant, dc2001, cluster, hhid)
+
+
+library(dplyr)
+library(tidyr)
+
+# dc2011を数値に変換する関数
+convert_to_numeric <- function(x) {
+  as.numeric(as.character(x))
+}
+
+# ステップ1: wave1でdc2011が有効な個人のすべてのwaveを抽出
+filtered_data <- data_long_final %>%
+  mutate(dc2011_numeric = convert_to_numeric(dc2011)) %>%
+  filter(wave == 1, !is.na(dc2011_numeric), dc2011_numeric >= 0) %>%
+  select(pid) %>%
+  distinct() %>%
+  inner_join(data_long_final, by = "pid") %>%
+  mutate(dc2011_numeric = convert_to_numeric(dc2011))  # 再度dc2011_numericを生成
+
+# ステップ2: dc2011とgeo2011の負の値を前のwaveの値で置き換え、欠損値を埋める
+filtered_data <- filtered_data %>%
+  group_by(pid) %>%
+  arrange(pid, wave) %>%
+  mutate(
+    dc2011_numeric = ifelse(dc2011_numeric < 0, NA, dc2011_numeric),
+    geo2011 = ifelse(geo2011 < 0, NA, geo2011)
+  ) %>%
+  fill(dc2011_numeric, .direction = "down") %>%
+  fill(geo2011, .direction = "down")
+
+# 結果の表示
+filtered_data
+
+# dc2011 列を削除し、dc2011_numeric の名前を dc2011 に変更
+filtered_data <- filtered_data %>%
+  select(-dc2011) %>%
+  rename(dc2011 = dc2011_numeric)
+
+# 結果の表示
+filtered_data
