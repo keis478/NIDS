@@ -1,0 +1,83 @@
+# 必要なライブラリの読み込み
+library(dplyr)
+library(lfe) # 固定効果モデル用
+
+# 収入関連の変数リスト
+income_vars <- c("fwag", "cwag", "swag", "cheq", "prof", "extr", 
+                 "bonu", "othe", "help", "plot", "opro", "spen", 
+                 "ppen", "uif", "comp", "dis", "chld", "fost", 
+                 "cdep", "indi", "inhe", "rnt", "retr", "brid", 
+                 "gift", "loan", "sale", "remt")
+
+# Waveごとの収入関連変数を生成
+waves_prefixes <- c("w1", "w2", "w3", "w4", "w5")
+waves_income_vars <- unlist(lapply(waves_prefixes, function(w) paste0(w, "_", income_vars)))
+
+# 必要な変数リスト
+vars_to_keep <- c("pid", "w1_dc2001", "w1_dc2011", "w1_geo2011", "w1_wgt", "w1_cluster", "w1_hhid",
+                  "w1_best_edu", "w1_geo2011", "w1_best_gen", "w1_best_race", "w1_best_age_yrs", "w1_empl_stat", 
+                  "w2_dc2011", "w2_geo2011", "w2_pweight", "w2_best_edu", "w2_best_gen", "w2_best_race", "w2_best_age_yrs", "w2_empl_stat",
+                  "w3_dc2011", "w3_geo2011", "w3_pweight", "w3_best_edu", "w3_best_gen", "w3_best_race", "w3_best_age_yrs", "w3_empl_stat", 
+                  "w4_dc2011", "w4_geo2011", "w4_pweight", "w4_best_edu", "w4_best_gen", "w4_best_race", "w4_best_age_yrs", "w4_empl_stat", 
+                  "w5_dc2011", "w5_geo2011", "w5_pweight", "w5_best_edu", "w5_best_gen", "w5_best_race", "w5_best_age_yrs", "w5_empl_stat", 
+                  waves_income_vars)
+
+# dataから存在する変数のみを選択してdata_selectedを作成
+data_selected <- data %>%
+  select(all_of(vars_to_keep[vars_to_keep %in% names(data)]))
+
+# 各Waveのデータセットに収入の合計を計算する関数
+calculate_total_income <- function(data, wave_prefix) {
+  income_vars <- paste0(wave_prefix, "_", income_vars)
+  income_vars <- income_vars[income_vars %in% names(data)]
+  data[[paste0(wave_prefix, "_total_income")]] <- rowSums(data[income_vars], na.rm = TRUE)
+  data
+}
+
+# 各Waveのデータセットに収入の合計を計算
+data_selected <- calculate_total_income(data_selected, "w1")
+data_selected <- calculate_total_income(data_selected, "w2")
+data_selected <- calculate_total_income(data_selected, "w3")
+data_selected <- calculate_total_income(data_selected, "w4")
+data_selected <- calculate_total_income(data_selected, "w5")
+
+# 教育達成度の変換関数
+convert_education <- function(edu_value) {
+  case_when(
+    edu_value == 25 ~ 0,
+    edu_value >= 0 & edu_value <= 7 ~ 1,
+    edu_value >= 8 & edu_value <= 11 ~ 2,
+    edu_value == 12 ~ 3,
+    edu_value >= 13 & edu_value <= 34 ~ 4,
+    TRUE ~ 0
+  )
+}
+
+# 教育達成度、性別、人種、年齢の変換
+for (wave_prefix in waves_prefixes) {
+  data_selected[[paste0(wave_prefix, "_best_edu")]] <- convert_education(data_selected[[paste0(wave_prefix, "_best_edu")]])
+  data_selected[[paste0(wave_prefix, "_best_age_yrs")]] <- ifelse(data_selected[[paste0(wave_prefix, "_best_age_yrs")]] < 0, 0, data_selected[[paste0(wave_prefix, "_best_age_yrs")]])
+}
+
+# w2_EverMigrantの計算
+data_selected$w2_EverMigrant <- ifelse(data_selected$w1_dc2011 != data_selected$w2_dc2011, 1, 0)
+
+# w3_EverMigrantの計算
+data_selected$w3_EverMigrant <- apply(data_selected[, c("w1_dc2011", "w2_dc2011", "w3_dc2011")], 1, function(x) {
+  ifelse(any(x != x[3], na.rm = TRUE), 1, 0)
+})
+
+# w4_EverMigrantの計算
+data_selected$w4_EverMigrant <- apply(data_selected[, c("w1_dc2011", "w2_dc2011", "w3_dc2011", "w4_dc2011")], 1, function(x) {
+  ifelse(any(x != x[4], na.rm = TRUE), 1, 0)
+})
+
+# w5_EverMigrantの計算
+data_selected$w5_EverMigrant <- apply(data_selected[, c("w1_dc2011", "w2_dc2011", "w3_dc2011", "w4_dc2011", "w5_dc2011")], 1, function(x) {
+  ifelse(any(x != x[5], na.rm = TRUE), 1, 0)
+})
+
+# ログ変換した収入の生成
+for (wave_prefix in waves_prefixes) {
+  data_selected[[paste0(wave_prefix, "_log_total_income")]] <- log(data_selected[[paste0(wave_prefix, "_total_income")]] + 1)
+}
