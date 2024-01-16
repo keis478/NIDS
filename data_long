@@ -1,0 +1,79 @@
+library(tidyverse)
+
+# 必要なライブラリを読み込む
+library(dplyr)
+
+# w1_dummy列を追加し、すべての値を0で埋める
+data_selected <- data_selected %>%
+  mutate(w1_dummy = 0)
+
+# wX_dummy列を追加し、すべての値を1で埋める（Xは2から5までの値を想定）
+for (wave in 2:5) {
+  data_selected <- data_selected %>%
+    mutate(!!paste0("w", wave, "_dummy") := 1)
+}
+
+# w1_EverMigrant列を追加し、すべての値を0で埋める
+data_selected <- data_selected %>%
+  mutate(w1_EverMigrant = 0)
+
+# ステップ1: 初期データセットの選択
+selected_columns <- c("pid", "w1_dc2001", "w1_cluster", "w1_hhid",
+                      paste0("w", 1:5, "_log_total_income"),
+                      paste0("w", 1:5, "_dc2011"),
+                      paste0("w", 1:5, "_geo2011"),
+                      paste0("w", 1:5, "_best_edu"),
+                      paste0("w", 1:5, "_best_gen"),
+                      paste0("w", 1:5, "_best_race"),
+                      paste0("w", 1:5, "_best_age_yrs"),
+                      paste0("w", 1:5, "_empl_stat"),
+                      paste0("w", 1:5, "_dummy"),
+                      paste0("w", 1:5, "_EverMigrant"),
+                      "w1_wgt", paste0("w", 2:5, "_pweight"))
+data_selected_new <- data_selected %>% select(all_of(selected_columns))
+
+# data_selected_newのhaven_labelledクラスの列を変換する
+data_selected_new <- data_selected_new %>%
+  mutate(across(where(~ is.labelled(.) || is.factor(.)), as.character))
+
+library(dplyr)
+library(tidyr)
+
+# 列名のリストを作成
+waves <- 1:5
+weight_cols <- c("w1_wgt", paste0("w", 2:5, "_pweight"))
+variable_cols <- c("log_total_income", "dc2011", "geo2011", "best_edu", "best_gen", "best_race", "best_age_yrs", "empl_stat", "dummy", "EverMigrant")
+
+# data_selected_newを5倍に複製し、各複製にwaveを割り当てる
+data_long <- data_selected_new %>%
+  slice(rep(1:n(), each = 5)) %>%
+  mutate(wave = rep(waves, times = nrow(data_selected_new)))
+
+# weight列を処理
+data_long <- data_long %>%
+  mutate(weight = case_when(
+    wave == 1 ~ w1_wgt,
+    wave == 2 ~ w2_pweight,
+    wave == 3 ~ w3_pweight,
+    wave == 4 ~ w4_pweight,
+    wave == 5 ~ w5_pweight
+  ))
+
+# その他の変数を処理
+for (var in variable_cols) {
+  data_long[[var]] <- NA  # 初期化
+  for (w in waves) {
+    data_long[data_long$wave == w, var] <- data_long[data_long$wave == w, paste0("w", w, "_", var)]
+  }
+}
+
+# 固定変数名の変更
+data_long <- data_long %>%
+  mutate(dc2001 = w1_dc2001,
+         cluster = w1_cluster,
+         hhid = w1_hhid) %>%
+  select(-matches("^w1_"))
+
+# 最終的な列の選択
+data_long_final <- data_long %>%
+  select(pid, wave, weight, log_total_income, dc2011, geo2011, best_edu, best_gen, best_race, best_age_yrs, empl_stat, dummy, EverMigrant, dc2001, cluster, hhid)
