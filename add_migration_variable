@@ -25,3 +25,53 @@ filtered_data <- filtered_data %>%
 filtered_data
 
 # これをwave4まで繰り返す
+# wave2のdc2011とgeo2011の値を抽出
+wave2_values <- filtered_data %>%
+    filter(wave == 2) %>%
+    select(pid, dc2011, geo2011)
+
+# 各pidに対して条件をチェックし、rr, uu, ru, urの値を更新
+filtered_data <- filtered_data %>%
+    left_join(wave2_values, by = "pid", suffix = c("", "_wave2")) %>%
+    group_by(pid) %>%
+    mutate(
+        rr = ifelse(wave >= 3 & dc2011 != dc2011_wave2 & geo2011 == 1 & geo2011_wave2 == 1, 1, rr),
+        uu = ifelse(wave >= 3 & dc2011 != dc2011_wave2 & geo2011 == 2 & geo2011_wave2 == 2, 1, uu),
+        ru = ifelse(wave >= 3 & dc2011 != dc2011_wave2 & geo2011 == 2 & geo2011_wave2 == 1, 1, ru),
+        ur = ifelse(wave >= 3 & dc2011 != dc2011_wave2 & geo2011 == 1 & geo2011_wave2 == 2, 1, ur)
+    ) %>%
+    select(-dc2011_wave2, -geo2011_wave2)  # wave2の一時的な列を削除
+
+# wave3のdc2011とgeo2011の値を抽出
+wave3_values <- filtered_data %>%
+    filter(wave == 3) %>%
+    select(pid, dc2011, geo2011)
+
+# 各pidに対して条件をチェックし、rr, uu, ru, urの値を更新
+filtered_data <- filtered_data %>%
+    left_join(wave3_values, by = "pid", suffix = c("", "_wave3")) %>%
+    group_by(pid) %>%
+    mutate(
+        rr = ifelse(wave >= 4 & dc2011 != dc2011_wave3 & geo2011 == 1 & geo2011_wave3 == 1, 1, rr),
+        uu = ifelse(wave >= 4 & dc2011 != dc2011_wave3 & geo2011 == 2 & geo2011_wave3 == 2, 1, uu),
+        ru = ifelse(wave >= 4 & dc2011 != dc2011_wave3 & geo2011 == 2 & geo2011_wave3 == 1, 1, ru),
+        ur = ifelse(wave >= 4 & dc2011 != dc2011_wave3 & geo2011 == 1 & geo2011_wave3 == 2, 1, ur)
+    ) %>%
+    select(-dc2011_wave3, -geo2011_wave3)  # wave3の一時的な列を削除
+
+# wave4のdc2011とgeo2011の値を抽出
+wave4_values <- filtered_data %>%
+    filter(wave == 4) %>%
+    select(pid, dc2011, geo2011)
+
+# 各pidに対して条件をチェックし、rr, uu, ru, urの値を更新
+filtered_data <- filtered_data %>%
+    left_join(wave4_values, by = "pid", suffix = c("", "_wave4")) %>%
+    group_by(pid) %>%
+    mutate(
+        rr = ifelse(wave >= 5 & dc2011 != dc2011_wave4 & geo2011 == 1 & geo2011_wave4 == 1, 1, rr),
+        uu = ifelse(wave >= 5 & dc2011 != dc2011_wave4 & geo2011 == 2 & geo2011_wave4 == 2, 1, uu),
+        ru = ifelse(wave >= 5 & dc2011 != dc2011_wave4 & geo2011 == 2 & geo2011_wave4 == 1, 1, ru),
+        ur = ifelse(wave >= 5 & dc2011 != dc2011_wave4 & geo2011 == 1 & geo2011_wave4 == 2, 1, ur)
+    ) %>%
+    select(-dc2011_wave4, -geo2011_wave4)  # wave4の一時的な列を削除
