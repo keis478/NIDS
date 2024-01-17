@@ -1,0 +1,30 @@
+# 条件を満たす pid を特定
+selected_pids <- filtered_data %>%
+    # wave列が1から5までの値を持つことを確認
+    group_by(pid) %>%
+    filter(all(wave %in% 1:5)) %>%
+    # Wave 1 から Wave 5 まで log_total_income が 0 より大きいことを確認
+    filter(all(log_total_income > 0)) %>%
+    # Wave 1 から Wave 5 まで weight が有効値（欠損していない）であることを確認
+    filter(all(!is.na(weight))) %>%
+    ungroup() %>%
+    select(pid) %>%
+    distinct()
+
+# 条件を満たすデータを抽出
+migration_type_time <- filtered_data %>%
+    filter(pid %in% selected_pids$pid)
+
+# 移住タイプ別 + 弾性効果分析モデル
+result_selected <- plm(log_total_income ~ rr : t4 + rr : t3 + rr : t2 + rr : t1 
+                       + uu : t4 + uu : t3 + uu : t2 + uu : t1 
+                       + ru : t4 + ru : t3 + ru : t2 + ru : t1 
+                       + ur : t4 + ur : t3 + ur : t2 + ur : t1 
+                       + empl_stat + best_age_yrs,
+                       data = migration_type_time,
+                       model = "within",
+                       effect = "twoways",
+                       index = c("pid", "wave"))
+
+# 表示
+print(summary(result_selected))
