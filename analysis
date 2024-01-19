@@ -12,12 +12,12 @@ selected_pids <- filtered_data %>%
     distinct()
 
 # 条件を満たすデータを抽出
-filtered_data <- data_long_final %>%
+selected_data <- filtered_data %>%
   filter(pid %in% selected_pids$pid)
 
 # 基本的なTWFE
 result_selected <- plm(log_total_income ~ EverMigrant + empl_stat + best_age_yrs,
-                       data = filtered_data,
+                       data = selected_data,
                        model = "within",
                        effect = "twoways",
                        index = c("pid", "wave"))
