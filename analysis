@@ -55,8 +55,22 @@ result_selected <- plm(log_total_income ~ rr : t4 + rr : t3 + rr : t2 + rr : t1
 # 表示
 print(summary(result_selected))
 
+# 教育達成度のダミー化
+library(dplyr)
+
+# filtered_data に新しい列を追加し、条件に基づいて値を割り当てる
+filtered_data <- filtered_data %>%
+  mutate(
+    No_Schooling = ifelse(best_edu == 0, 1, 0),
+    No_Matric = ifelse(best_edu %in% c(1, 2), 1, 0),
+    Matric = ifelse(best_edu %in% c(3, 4), 1, 0)
+  )
+
+
 # 教育と移住の相互作用項
-result_selected <- plm(log_total_income ~ rr : best_edu + uu : best_edu + ru : best_edu + ur : best_edu + best_age_yrs,
+result_selected <- plm(log_total_income ~ rr : No_Schooling + uu : No_Schooling + ru : No_Schooling + ur : No_Schooling 
++ rr : No_Matric + uu : No_Matric + ru : No_Matric + ur : No_Matric
++ rr : Matric + uu : Matric + ru : Matric + ur : Matric + best_age_yrs,
                        data = selected_data,
                        model = "within",
                        effect = "twoways",
