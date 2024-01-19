@@ -54,3 +54,11 @@ result_selected <- plm(log_total_income ~ rr : t4 + rr : t3 + rr : t2 + rr : t1
 
 # 表示
 print(summary(result_selected))
+
+# 教育と移住の相互作用項
+result_selected <- plm(log_total_income ~ rr + uu + ru + ur + rr : best_edu + uu : best_edu + ru : best_edu + ur : best_edu + best_age_yrs,
+                       data = selected_data,
+                       model = "within",
+                       effect = "twoways",
+                       index = c("pid", "wave"))
+print(summary(result_selected))
