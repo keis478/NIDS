@@ -23,6 +23,20 @@ result_selected <- plm(log_total_income ~ EverMigrant + empl_stat + best_age_yrs
                        index = c("pid", "wave"))
 print(summary(result_selected))
 
+# best_age_yrs の二乗項をデータセットに追加
+selected_data$best_age_yrs_sq <- selected_data$best_age_yrs^2
+
+# 基本的なTWFE（best_age_yrs とその二乗項を含む）
+result_selected <- plm(log_total_income ~ EverMigrant + best_age_yrs + best_age_yrs_sq,
+                       data = selected_data,
+                       model = "within",
+                       effect = "twoways",
+                       index = c("pid", "wave"))
+
+# 結果を出力
+print(summary(result_selected))
+
+
 # 条件を満たすデータを抽出
 migration_type_time <- filtered_data %>%
     filter(pid %in% selected_pids$pid)
@@ -38,7 +52,6 @@ result_selected <- plm(log_total_income ~ rr : t4 + rr : t3 + rr : t2 + rr : t1
                        effect = "twoways",
                        index = c("pid", "wave"))
 
-# 表示
 print(summary(result_selected))
 
 # 教育達成度のダミー化
@@ -61,4 +74,5 @@ result_selected <- plm(log_total_income ~ rr : No_Schooling + uu : No_Schooling 
                        model = "within",
                        effect = "twoways",
                        index = c("pid", "wave"))
+
 print(summary(result_selected))
