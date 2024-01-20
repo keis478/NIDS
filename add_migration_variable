@@ -109,3 +109,9 @@ break # 条件に一致したら、そのpidの残りの処理をスキップ
 }
 }
 }
+
+# EverMigrant 列を追加する
+filtered_data$EverMigrant <- ifelse(filtered_data$rr == 1 | 
+                                    filtered_data$uu == 1 | 
+                                    filtered_data$ru == 1 | 
+                                    filtered_data$ur == 1, 1, 0)
