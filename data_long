@@ -108,13 +108,14 @@ filtered_data <- filtered_data %>%
   fill(dc2011_numeric, .direction = "down") %>%
   fill(geo2011, .direction = "down")
 
-# 結果の表示
-filtered_data
-
 # dc2011 列を削除し、dc2011_numeric の名前を dc2011 に変更
 filtered_data <- filtered_data %>%
   select(-dc2011) %>%
   rename(dc2011 = dc2011_numeric)
+
+# 列名を変更
+filtered_data <- filtered_data %>%
+  rename(occ_code = a_em1occ_isco_c)
 
 # 結果の表示
 filtered_data
