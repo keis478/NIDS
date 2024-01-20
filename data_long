@@ -77,7 +77,7 @@ data_long <- data_long %>%
 
 # 最終的な列の選択
 data_long_final <- data_long %>%
-  select(pid, wave, weight, log_total_income, dc2011, geo2011, best_edu, best_gen, best_race, best_age_yrs, empl_stat, em1occ_isco_c, dummy, EverMigrant, dc2001, cluster, hhid)
+  select(pid, wave, weight, log_total_income, dc2011, geo2011, best_edu, best_gen, best_race, best_age_yrs, empl_stat, a_em1occ_isco_c, dummy, EverMigrant, dc2001, cluster, hhid)
 
 
 library(dplyr)
