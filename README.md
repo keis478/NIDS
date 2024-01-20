@@ -1,1 +1,1 @@
-# This is the file to process the preparation for analysing NIDS data
+# This is the file to prepare for analysing NIDS data
