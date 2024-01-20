@@ -10,24 +10,23 @@ for (i in 1:5) {
         wave_data <- filtered_data %>%
             filter(wave %in% c(1, i)) %>%
             na.omit(weight)
-
+        
         # データ型の変換
         wave_data$dummy <- as.numeric(wave_data$dummy)
         wave_data$EverMigrant <- as.numeric(wave_data$EverMigrant)
         wave_data$wave <- as.factor(wave_data$wave)
         wave_data$pid <- as.factor(wave_data$pid)
         wave_data$weight <- as.numeric(wave_data$weight)
-
+        
         # モデルの推定
         model <- lm_robust(
-            log_total_income ~ dummy : EverMigrant,
+            log_total_income ~ dummy : EverMigrant + best_age_yrs,
             weights = wave_data$weight,
             data = wave_data,
-            fixed_effects = ~ wave + pid,
             clusters = cluster,
             se_type = "stata"
         )
-
+        
         # 結果をリストに保存
         models[[paste("Wave1_Wave", i)]] <- model
     }
@@ -44,14 +43,14 @@ results_df <- data.frame(Wave = character(),
 # 各モデルの結果を抽出
 for (name in names(models)) {
     model_summary <- summary(models[[name]], robust = TRUE)
-
+    
     # coef関数を使用して係数のテーブルを取得
     coef_table <- coef(model_summary)
-
+    
     # dummy:EverMigrant の係数を取得（存在する場合）
     if ("dummy:EverMigrant" %in% rownames(coef_table)) {
         coef_info <- coef_table["dummy:EverMigrant", ]
-
+        
         # データフレームに結果を追加
         results_df <- rbind(results_df, data.frame(Wave = name,
                                                    Coefficients = coef_info["Estimate"],
