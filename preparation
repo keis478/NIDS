@@ -15,11 +15,11 @@ waves_income_vars <- unlist(lapply(waves_prefixes, function(w) paste0(w, "_", in
 
 # 必要な変数リスト
 vars_to_keep <- c("pid", "w1_dc2001", "w1_dc2011", "w1_geo2011", "w1_wgt", "w1_cluster", "w1_hhid",
-                  "w1_best_edu", "w1_geo2011", "w1_best_gen", "w1_best_race", "w1_best_age_yrs", "w1_empl_stat", 
-                  "w2_dc2011", "w2_geo2011", "w2_pweight", "w2_best_edu", "w2_best_gen", "w2_best_race", "w2_best_age_yrs", "w2_empl_stat",
-                  "w3_dc2011", "w3_geo2011", "w3_pweight", "w3_best_edu", "w3_best_gen", "w3_best_race", "w3_best_age_yrs", "w3_empl_stat", 
-                  "w4_dc2011", "w4_geo2011", "w4_pweight", "w4_best_edu", "w4_best_gen", "w4_best_race", "w4_best_age_yrs", "w4_empl_stat", 
-                  "w5_dc2011", "w5_geo2011", "w5_pweight", "w5_best_edu", "w5_best_gen", "w5_best_race", "w5_best_age_yrs", "w5_empl_stat", 
+                  "w1_best_edu", "w1_geo2011", "w1_best_gen", "w1_best_race", "w1_best_age_yrs", "w1_empl_stat", "w1_a_em1occ_isco_c", 
+                  "w2_dc2011", "w2_geo2011", "w2_pweight", "w2_best_edu", "w2_best_gen", "w2_best_race", "w2_best_age_yrs", "w2_empl_stat", "w2_a_em1occ_isco_c", 
+                  "w3_dc2011", "w3_geo2011", "w3_pweight", "w3_best_edu", "w3_best_gen", "w3_best_race", "w3_best_age_yrs", "w3_empl_stat", "w3_a_em1occ_isco_c",
+                  "w4_dc2011", "w4_geo2011", "w4_pweight", "w4_best_edu", "w4_best_gen", "w4_best_race", "w4_best_age_yrs", "w4_empl_stat", "w4_a_em1occ_isco_c",
+                  "w5_dc2011", "w5_geo2011", "w5_pweight", "w5_best_edu", "w5_best_gen", "w5_best_race", "w5_best_age_yrs", "w5_empl_stat", "w5_a_em1occ_isco_c",
                   waves_income_vars)
 
 # dataから存在する変数のみを選択してdata_selectedを作成
