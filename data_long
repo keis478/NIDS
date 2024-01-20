@@ -27,6 +27,7 @@ selected_columns <- c("pid", "w1_dc2001", "w1_cluster", "w1_hhid",
                       paste0("w", 1:5, "_best_race"),
                       paste0("w", 1:5, "_best_age_yrs"),
                       paste0("w", 1:5, "_empl_stat"),
+                      paste0("w", 1:5, "_em1occ_isco_c"),
                       paste0("w", 1:5, "_dummy"),
                       paste0("w", 1:5, "_EverMigrant"),
                       "w1_wgt", paste0("w", 2:5, "_pweight"))
@@ -76,7 +77,7 @@ data_long <- data_long %>%
 
 # 最終的な列の選択
 data_long_final <- data_long %>%
-  select(pid, wave, weight, log_total_income, dc2011, geo2011, best_edu, best_gen, best_race, best_age_yrs, empl_stat, dummy, EverMigrant, dc2001, cluster, hhid)
+  select(pid, wave, weight, log_total_income, dc2011, geo2011, best_edu, best_gen, best_race, best_age_yrs, empl_stat, em1occ_isco_c, dummy, EverMigrant, dc2001, cluster, hhid)
 
 
 library(dplyr)
