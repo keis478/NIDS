@@ -16,7 +16,7 @@ selected_data <- filtered_data %>%
   filter(pid %in% selected_pids$pid)
 
 # 基本的なTWFE
-result_selected <- plm(log_total_income ~ EverMigrant + empl_stat + best_age_yrs,
+result_selected <- plm(log_total_income ~ EverMigrant + best_age_yrs + best_age_yrs_sq,
                        data = selected_data,
                        model = "within",
                        effect = "twoways",
